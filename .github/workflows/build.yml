@@ -24,15 +24,17 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
 
-      # ⭐ الخطوة الأهم: توليد مجلدات Android/iOS تلقائياً
+      # 1. توليد ملفات الأندرويد
       - name: توليد ملفات المنصات
         run: flutter create . --platforms=android --project-name=azzam_ai --org com.azzam
 
+      # 2. تحديث إصدار Kotlin تلقائياً (هذا هو الحل)
+      - name: تحديث إصدار Kotlin إلى 2.0.21
+        run: |
+          sed -i "s/id \"org.jetbrains.kotlin.android\" version \".*\"/id \"org.jetbrains.kotlin.android\" version \"2.0.21\"/" android/settings.gradle
+
       - name: جلب الحزم
         run: flutter pub get
-
-      - name: تحليل الكود
-        run: flutter analyze --no-fatal-infos || true
 
       - name: بناء APK مع حقن المفتاح
         run: flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
