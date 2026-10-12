@@ -1,0 +1,40 @@
+name: بناء تطبيق عزام أي آي
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: جلب الكود
+        uses: actions/checkout@v4
+
+      - name: إعداد Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: إعداد Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: جلب الحزم
+        run: flutter pub get
+
+      - name: تحليل الكود
+        run: flutter analyze --no-fatal-infos
+
+      - name: بناء APK مع حقن المفتاح
+        run: flutter build apk --release --dart-define=GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+
+      - name: رفع APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: azzam-ai-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
