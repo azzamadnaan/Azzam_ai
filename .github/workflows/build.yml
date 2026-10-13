@@ -28,10 +28,30 @@ jobs:
       - name: توليد ملفات المنصات
         run: flutter create . --platforms=android --project-name=azzam_ai --org com.azzam
 
-      # 2. تحديث إصدار Kotlin تلقائياً (هذا هو الحل)
-      - name: تحديث إصدار Kotlin إلى 2.0.21
+      # 2. تحديث إصدار Gradle Wrapper إلى 8.7
+      - name: تحديث إصدار Gradle
         run: |
-          sed -i "s/id \"org.jetbrains.kotlin.android\" version \".*\"/id \"org.jetbrains.kotlin.android\" version \"2.0.21\"/" android/settings.gradle
+          sed -i 's|distributionUrl=.*gradle-.*-all.zip|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.7-all.zip|' android/gradle/wrapper/gradle-wrapper.properties
+
+      # 3. تحديث إصدار Android Gradle Plugin (AGP) إلى 8.6.0
+      - name: تحديث إصدار AGP
+        run: |
+          sed -i 's/id "com.android.application" version ".*"/id "com.android.application" version "8.6.0" apply false/' android/settings.gradle
+          sed -i 's/id "com.android.library" version ".*"/id "com.android.library" version "8.6.0" apply false/' android/settings.gradle
+
+      # 4. تحديث إصدار Kotlin إلى 2.0.21
+      - name: تحديث إصدار Kotlin
+        run: |
+          sed -i 's/id "org.jetbrains.kotlin.android" version ".*"/id "org.jetbrains.kotlin.android" version "2.0.21"/' android/settings.gradle
+
+      # 5. تحديث compileSdk و targetSdk إلى 35
+      - name: تحديث compileSdk إلى 35
+        run: |
+          sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/' android/app/build.gradle
+          sed -i 's/targetSdk = flutter.targetSdkVersion/targetSdk = 35/' android/app/build.gradle
+          # في حال كان الملف بصيغة kotlin
+          sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/' android/app/build.gradle.kts || true
+          sed -i 's/targetSdk = flutter.targetSdkVersion/targetSdk = 35/' android/app/build.gradle.kts || true
 
       - name: جلب الحزم
         run: flutter pub get
